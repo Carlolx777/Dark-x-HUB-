@@ -1,0 +1,444 @@
+
+-- --- ABA TELEPORTES (NOVA) ---
+local TabTP = Window:MakeTab({"Teleportes", "map"})
+
+local teleportButtons = {
+    {Nome = "Agência", Ponto = CFrame.new(179, 4, -464)},
+    {Nome = "Oficina Oculta", Ponto = CFrame.new(0, 4, -495)},
+    {Nome = "Bastidores", Ponto = CFrame.new(192, 4, 272)},
+    {Nome = "Centro Urbano", Ponto = CFrame.new(136, 4, 117)},
+    {Nome = "Área do Crime", Ponto = CFrame.new(-119, -28, 235)},
+    {Nome = "Casa Deserta", Ponto = CFrame.new(986, 4, 63)},
+    {Nome = "Arco", Ponto = CFrame.new(-589, 141, -59)},
+    {Nome = "Hospital", Ponto = CFrame.new(-309, 4, 71)},
+    {Nome = "Sala Secreta", Ponto = CFrame.new(-343, 4, -613)},
+    {Nome = "Ilha Isolada", Ponto = CFrame.new(-1925, 23, 127)},
+    {Nome = "Hotéis", Ponto = CFrame.new(182, 4, 150)},
+    {Nome = "Montanha", Ponto = CFrame.new(-670, 251, 765)},
+    {Nome = "Portal da Agência", Ponto = CFrame.new(672, 4, -296)},
+    {Nome = "Esconderijo", Ponto = CFrame.new(505, -75, 143)},
+    {Nome = "Escola", Ponto = CFrame.new(-312, 4, 211)},
+    {Nome = "Café", Ponto = CFrame.new(161, 8, 52)},
+    {Nome = "Cafeteria", Ponto = CFrame.new(-97.12, 4.65, 254.99)},
+    {Nome = "Início", Ponto = CFrame.new(-26, 4, -23)},
+    {Nome = "Banco", Ponto = CFrame.new(2.28, 4.65, 254.58)},
+    {Nome = "Roupas", Ponto = CFrame.new(-46.15, 4.65, 253.20)},
+    {Nome = "Refúgio", Ponto = CFrame.new(-88.48, 22.05, 262.34)},
+    {Nome = "Clínica Dentária", Ponto = CFrame.new(-53.58, 22.15, 265.61)},
+}
+
+local selectedTeleport = nil
+local opcoesTeleporte = {}
+for _, entry in ipairs(teleportButtons) do table.insert(opcoesTeleporte, entry.Nome) end
+
+TabTP:AddSection({"Locais de Brookhaven"})
+
+TabTP:AddDropdown({
+    Name = "Local de Teleporte",
+    Description = "Escolha um destino para viajar",
+    Options = opcoesTeleporte,
+    Default = "Selecionar...",
+    Callback = function(nomeSelecionado)
+        for _, entry in ipairs(teleportButtons) do
+            if entry.Nome == nomeSelecionado then
+                selectedTeleport = entry
+                break
+            end
+        end
+    end
+})
+
+TabTP:AddButton({
+    Name = "Teleportar",
+    Callback = function()
+        if selectedTeleport and vu7.Character then
+            vu7.Character.HumanoidRootPart.CFrame = selectedTeleport.Ponto
+        end
+    end
+})
+
+TabTP:AddSection({"Gerenciamento de Servidor"})
+
+-- SERVER HOP COM NOTIFICAÇÃO
+TabTP:AddButton({
+    Name = "Servidor com Poucas Pessoas (Server Hop)",
+    Callback = function()
+        local PlaceID = game.PlaceId
+        local success, response = pcall(function()
+            return game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100')
+        end)
+        
+        if success then
+            local Site = game.HttpService:JSONDecode(response)
+            for _, v in pairs(Site.data) do
+                if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                    -- Notificação de sucesso
+                    StarterGui:SetCore("SendNotification", {
+                        Title = "Server Hop",
+                        Text = "Servidor encontrado! Teleportando para um local com "..v.playing.." players...",
+                        Duration = 5,
+                        Icon = "rbxassetid://131153193945220"
+                    })
+                    
+                    task.wait(0.5) -- Pequeno delay para a notificação aparecer
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, v.id, vu7)
+                    break
+                end
+            end
+        else
+            warn("Erro ao buscar servidores.")
+        end
+    end
+})
+
+TabTP:AddButton({
+    Name = "Reentrar no Servidor (Rejoin)",
+    Callback = function()
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, vu7)
+    end
+})
+
+-- --- ABA: CARRO ---
+-- ABA CARRO (REFORMULADA COM TODAS AS FUNÇÕES)
+local TabCar = Window:MakeTab({"Carro", "car"}) 
+local carSpeed = 25
+local turboValue = "25"
+local selectedMusic = ""
+local selectedVehicle = nil
+
+TabCar:AddSection({"Velocidade Sem <GamePass>"})
+TabCar:AddTextBox({ Name = "Definir Velocidade", PlaceholderText = "Velocidade: 200", Callback = function(v) carSpeed = tonumber(v) or carSpeed end })
+TabCar:AddTextBox({ Name = "Definir Turbo", PlaceholderText = "Turbo: 200", Callback = function(v) turboValue = tostring(v) end })
+TabCar:AddButton({ Name = "Aplicar Velocidade e Turbo", Callback = function()
+    local car = vu9.Vehicles:FindFirstChild(vu7.Name .. "Car")
+    if car then
+        local function apply(seat)
+            if seat then
+                local ms = seat:FindFirstChild("MaxSpeed") or seat:FindFirstChild("TopSpeed")
+                if ms then ms.Value = carSpeed end
+                local tb = seat:FindFirstChild("Turbo")
+                if tb then tb.Value = turboValue end
+            end
+        end
+        if car:FindFirstChild("Seats") then apply(car.Seats:FindFirstChild("VehicleSeat")) end
+        if car:FindFirstChild("Body") then apply(car.Body:FindFirstChild("VehicleSeat")) end
+        StarterGui:SetCore("SendNotification", {Title = "Sucesso", Text = "Velocidade aplicada!", Duration = 3})
+    end
+end})
+
+TabCar:AddSection({"Música No Carro <GamePass>"})
+local MusicsList = {
+    { Name = "Pac Man Phonk", Id = 120889371113999 },
+	{ Name = "Batalla de bombas", Id = 71995582569283 },
+	{ Name = "Mtg uh uh ha ha", Id = 122697381252723 },
+	{ Name = "fa3 renitch", Id = 128934903242385 },
+	{ Name = "Kawaii", Id = 13067828528278 },
+	{ Name = "Feeling", Id = 120764084521465 },	
+	{ Name = "Aura + Egp", Id = 97841988407875 },	
+	{ Name = "Mtg Balada", Id = 83797836818857 },	
+	{ Name = "tomagi mo tão", Id = 111668097052966 },	
+	{ Name = "mtg terra bela funk", Id = 134770548505933 },	
+	{ Name = "Hard tuff fye", Id = 92979002969874 },
+	{ Name = "The Twelve", Id = 126153082683694 },	
+    { Name = "PASSO BEM SOLTO", Id = 119936139925486 },
+    { Name = "phonkV2", Id = 97279560249940 },
+    { Name = "phonkV3", Id = 74697049223758 },
+    { Name = "phonkV4", Id = 95248559316142 },
+    { Name = "Notaker - The Storm", Id = 5410084538 },
+    { Name = "Vintage - Love Is", Id = 7029092469 },
+    { Name = "Stephen Walking - JC-08", Id = 7028970358 },
+    { Name = "Grant - Color", Id = 7023828725 },
+    { Name = "Snavs - Us", Id = 5410082468 },
+    { Name = "Eskai - Mimi", Id = 7023749823 },
+    { Name = "PIXL - Galactic Voyage", Id = 5410081112 },
+    { Name = "Tony Romera - Heat Wave", Id = 5410083226 },
+    { Name = "Conro - All I Want", Id = 7023680426 },
+    { Name = "Pixel Terror", Id = 5410086149 },
+    { Name = "DESERT STAR - Empty Sky", Id = 5410084938 },
+    { Name = "Grant - Are We Still Young", Id = 5410086445 },
+    { Name = "Stonebank - Fire", Id = 7028985831 },
+    { Name = "Jay Cosmic - Ocean Eyes", Id = 5410085296 },
+    { Name = "Rootkit - Taking Me Higher", Id = 5410081542 },
+    { Name = "Duumu - Forward", Id = 5410081471 },
+    { Name = "Tony Romera & SQWAD - St Tropez", Id = 5410084006 },
+    { Name = "Tony Romera - I Can't", Id = 5410082805 },
+    { Name = "Koven - Gold", Id = 5410083299 },
+    { Name = "soupandreas - Sprite", Id = 5410083814 },
+    { Name = "Hoaprox & Rogue - New World", Id = 5410082346 },
+    { Name = "Protostar - Feel Your Heart", Id = 5410082171 },
+    { Name = "Feint feat - Drifters", Id = 5410084426 },
+    { Name = "Bensley - All Night", Id = 5410082273 },
+    { Name = "favela venceu", Id = 97097857368633 },
+    { Name = "Backrooms", Id = 120817494107898 },
+    { Name = "Músicas de Piano acústico", Id = 1838457617 },
+    { Name = "Sushi Don't lie", Id = 134713831368801 },
+    { Name = "Kerosene Cyristal Castels", Id = 17647322226 },
+    { Name = "song6", Id = 11295853276 },
+    { Name = "song7", Id = 11394802913 },
+    { Name = "song8", Id = 1333498630722271 },
+    { Name = "song9", Id = 100725558369704 },
+    { Name = "montagem sombra girl", Id = 11164818809 },
+	{ Name = "Não Estou louco", Id = 74366765967475 },
+	{ Name = "Manda Meu Passinho", Id = 77741294709660 },
+	{ Name = "Cenário Selvagem", Id = 117562011395992 },
+	{ Name = "Want To Love", Id = 104846670980072 },
+	{ Name = "Melodia Virtual", Id = 139147474886402 },
+	{ Name = "Signora Funk", Id = 123394392737234 },
+	{ Name = "Blassed Mane", Id = 16831108393 },
+	{ Name = "Doors", Id = 13530436461 },
+	{ Name = "Onichan?", Id = 17422156627 },
+	{ Name = "hoodtrap", Id = 73685038553576 },
+	{ Name = "I love you so", Id = 98364034458260 },
+	{ Name = "Passei de glock", Id = 187643630 },
+	{ Name = "Poze Cv", Id = 124244582950595 },
+	{ Name = "Trap", Id = 131582258401093 },
+	{ Name = "Oruan - Sou Teu fã", Id = 85342086082111 },
+	{ Name = "Soldado Guerreiro", Id = 71590664026646 },
+	{ Name = "Fuga Na Viatura", Id = 131891110268352 },
+	{ Name = "forró ja cansou", Id = 74812784884330},
+	{ Name = "gol contra", Id =  122114766584918},
+	{ Name = "Eligebete", Id = 129370559491985 },
+	{ Name = "Forsaken", Id = 136274352281439 },
+	{ Name = "Anxiety", Id = 101483901475189 },
+	{ Name = "Grelo So fé", Id = 72200166265935 },
+	{ Name = "Phonk sexoagressivo", Id = 111995323199676 },
+	{ Name = "forró da resenha", Id = 120973520531216 },
+	{ Name = "escolha certa", Id = 107088620814881 },
+	{ Name = "lembro ate hoje", Id = 71531533552899 },
+	{ Name = "oruam", Id = 85342086082111 },
+	{ Name = "chinese phonk", Id = 134713831368801 },
+	{ Name = "Nooo", Id = 73685038553576 },
+	{ Name = "tuber 93", Id = 1839246711 },
+	{ Name = "idk", Id = 93218265275853 },
+	{ Name = "Pizza Place", Id = 1601659619 },
+	{ Name = "beats", Id = 16190782181 },
+	{ Name = "Samba2", Id = 1838888602 },
+	{ Name = "Rock Roll", Id = 8654835474 },
+	{ Name = "Phonk", Id = 18841894272 },
+	{ Name = "Flamengo funk", Id = 8080255618 },
+	{ Name = "Carro de Ovos", Id = 3148329638 },
+	{ Name = "Banka", Id = 16190784229 },
+	{ Name = "Essa é Antiga", Id = 90999978343771 },
+	{ Name = "Essa Aqui é Braba", Id = 120833520065453 },
+	{ Name = "Help Me Phonk", Id = 72458292563094 },
+	{ Name = "Envolve A Tropa", Id = 88094479399489 },
+	{ Name = "No Pick Mulher", Id = 92893359226454 },
+	{ Name = "Mídia", Id = 105832154444494 },
+	{ Name = "Phonk Version", Id = 103409297553965 },
+	{ Name = "Phonk louco", Id = 73140398421340 },
+	{ Name = "Slowed Vapo No Vapo", Id = 106317184644394 },
+	{ Name = "Phonk Brasil", Id = 111281710445018 },
+	{ Name = "No Solinho", Id = 72440232513341 },
+	{ Name = "Phonk Inglês", Id = 14145624031 },
+	{ Name = "Ultra Slowed", Id = 84733736048142 },
+	{ Name = "Ritmada", Id = 104541292443133 },
+	{ Name = "Ritmada Novinha", Id = 94718473830640 },
+	{ Name = "So de te olha", Id = 74187181906707 }
+}
+local MusicNames = {}
+local MusicIds = {}
+for _, m in pairs(MusicsList) do table.insert(MusicNames, m.Name) MusicIds[m.Name] = m.Id end
+
+TabCar:AddDropdown({ Name = "Selecionar Música", Options = MusicNames, Callback = function(v) selectedMusic = v end })
+TabCar:AddButton({ Name = "Tocar Música", Callback = function()
+    local id = MusicIds[selectedMusic]
+    if id then
+        local evs = {"PickingVehicleMusicText", "PickingCarMusicText", "PickingScooterMusicText", "PickHouseMusicText", "ToolMusicText"}
+        for _, ev in pairs(evs) do vu8.RE:FindFirstChild("1Player1sCa1r"):FireServer(ev, id) end
+    end
+end})
+TabCar:AddButton({ Name = "Parar Música", Callback = function() vu8.RE:FindFirstChild("1Player1sCa1r"):FireServer("StopMusic", 73423225643184) end })
+
+-- Carro Colorido
+local isColorChanging = false
+TabCar:AddToggle({ Name = "Carro Colorido <GamePass>", Default = false, Callback = function(s)
+    isColorChanging = s
+    if s then task.spawn(function()
+        while isColorChanging do
+            for _, v in pairs(vu9.Vehicles:GetChildren()) do
+                if v:FindFirstChild("Owner") and v.Owner.Value == vu7.Name then
+                    local color = Color3.new(math.random(), math.random(), math.random())
+                    for _, p in pairs(v:GetDescendants()) do if p:IsA("BasePart") then p.Color = color end end
+                end
+            end
+            task.wait(0.5)
+        end
+    end) end
+end})
+
+-- Funções de Carro (Seleção)
+TabCar:AddSection({"Carro Funções"})
+local function updateVehList()
+    local list = {}
+    for _, v in pairs(vu9.Vehicles:GetChildren()) do table.insert(list, v.Name) end
+    return list
+end
+local CarDrop = TabCar:AddDropdown({ Name = "Selecione um carro", Options = updateVehList(), Callback = function(v) selectedVehicle = v end })
+TabCar:AddButton({ Name = "Atualizar lista", Callback = function() CarDrop:Set(updateVehList()) end })
+
+TabCar:AddButton({ Name = "Teleporta ao Assento", Callback = function()
+    if selectedVehicle then
+        local car = vu9.Vehicles:FindFirstChild(selectedVehicle)
+        if car and car:FindFirstChild("Body") then
+            local seat = car.Body:FindFirstChild("VehicleSeat") or car.Body:FindFirstChild("CarSeatPosition") or car.Body:FindFirstChild("Passenger")
+            if seat then vu7.Character.HumanoidRootPart.CFrame = seat.CFrame + Vector3.new(0, 3, 0) end
+        end
+    end
+end})
+
+TabCar:AddToggle({ Name = "Puxa o Carro", Callback = function(v)
+    if v and selectedVehicle then
+        local car = vu9.Vehicles:FindFirstChild(selectedVehicle)
+        if car then
+            local old = vu7.Character.HumanoidRootPart.CFrame
+            car:SetPrimaryPartCFrame(old)
+        end
+    end
+end})
+
+-- Extreme Carros
+TabCar:AddSection({"Extreme Carros <Super>"})
+TabCar:AddButton({ Name = "Fly Carro Free", Callback = function() loadstring(game:HttpGet('https://raw.githubusercontent.com/realgengar/scripts/refs/heads/main/FlyCar.lua'))() end })
+TabCar:AddButton({ Name = "Puxa Todos os Carros", Callback = function()
+    for _, v in pairs(vu9.Vehicles:GetChildren()) do pcall(function() v:SetPrimaryPartCFrame(vu7.Character.HumanoidRootPart.CFrame) end) end
+end})
+-- ABA FUN2 (CORREÇÃO DE SLIDERS)
+local Fun2Tab = Window:MakeTab({"fun2", "home"})
+Fun2Tab:AddSlider({
+    Name = "Speed Player",
+    Min = 16,
+    Max = 1000,
+    Default = 16,
+    Callback = function(v) if vu7.Character then vu7.Character.Humanoid.WalkSpeed = v end end
+})
+
+Fun2Tab:AddSlider({
+    Name = "Jump Power",
+    Min = 50,
+    Max = 1000,
+    Default = 50,
+    Callback = function(v) if vu7.Character then vu7.Character.Humanoid.JumpPower = v end end
+})
+
+Fun2Tab:AddSlider({
+    Name = "Gravity",
+    Min = 0,
+    Max = 1000,
+    Default = 196,
+    Callback = function(v) vu9.Gravity = v end
+})
+-- Lógica Infinite Jump
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfiniteJumpEnabled then
+        local character = vu7.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+Fun2Tab:AddToggle({
+    Name = "Infinite Jump",
+    Default = false,
+    Callback = function(Value)
+        InfiniteJumpEnabled = Value
+    end
+})
+
+-- Botão de Reset
+Fun2Tab:AddButton({
+    Name = "Reset Speed/Gravity/JumpPower ",
+    Callback = function()
+        local character = vu7.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid.WalkSpeed = 16
+            character.Humanoid.JumpPower = 50
+        end
+        vu9.Gravity = 196.2
+        InfiniteJumpEnabled = false
+        StarterGui:SetCore("SendNotification", {Title = "Reset", Text = "Configurações padrão restauradas!", Duration = 3})
+    end
+})-- Variáveis da Aba Antis
+local antiToolSit, antiCarSit, antiVehicleCollision = false, false, false
+local keywords = { "bomb", "soccer", "boat" }
+local carKeyword = "car"
+local wheelKeyword = "wheel"
+local AntiWeaponConn = nil
+
+-- --- FUNÇÕES DE SUPORTE ---
+local function applyCollisionLogic(obj)
+    if not obj:IsA("BasePart") then return end
+    local name = obj.Name:lower()
+    local isCar = false
+    local parent = obj
+    while parent do
+        if parent.Name:lower():find(carKeyword) then isCar = true break end
+        parent = parent.Parent
+    end
+    if isCar then obj.CanCollide = not antiCarSit end
+end
+
+local function updateSitState()
+    local hum = vu7.Character and vu7.Character:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum:SetStateEnabled(Enum.HumanoidStateType.Seated, not (antiToolSit or antiCarSit))
+        if (antiToolSit or antiCarSit) and hum.Sit then hum.Sit = false end
+    end
+end
+-- ABA FUN2 (CORREÇÃO DE SLIDERS)
+local Fun2Tab = Window:MakeTab({"fun2", "home"})
+Fun2Tab:AddSlider({
+    Name = "Speed Player",
+    Min = 16,
+    Max = 1000,
+    Default = 16,
+    Callback = function(v) if vu7.Character then vu7.Character.Humanoid.WalkSpeed = v end end
+})
+
+Fun2Tab:AddSlider({
+    Name = "Jump Power",
+    Min = 50,
+    Max = 1000,
+    Default = 50,
+    Callback = function(v) if vu7.Character then vu7.Character.Humanoid.JumpPower = v end end
+})
+
+Fun2Tab:AddSlider({
+    Name = "Gravity",
+    Min = 0,
+    Max = 1000,
+    Default = 196,
+    Callback = function(v) vu9.Gravity = v end
+})
+-- Lógica Infinite Jump
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if InfiniteJumpEnabled then
+        local character = vu7.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+Fun2Tab:AddToggle({
+    Name = "Infinite Jump",
+    Default = false,
+    Callback = function(Value)
+        InfiniteJumpEnabled = Value
+    end
+})
+
+-- Botão de Reset
+Fun2Tab:AddButton({
+    Name = "Reset Speed/Gravity/JumpPower ",
+    Callback = function()
+        local character = vu7.Character
+        if character and character:FindFirstChild("Humanoid") then
+            character.Humanoid.WalkSpeed = 16
+            character.Humanoid.JumpPower = 50
+        end
+        vu9.Gravity = 196.2
+        InfiniteJumpEnabled = false
+        StarterGui:SetCore("SendNotification", {Title = "Reset", Text = "Configurações padrão restauradas!", Duration = 3})
+    end
+})
