@@ -1,0 +1,95 @@
+--[[
+	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
+]]
+local redzlib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Yuna-ux/Other-scripts/refs/heads/main/UI-Library.lua"))()
+
+local Window = redzlib:MakeWindow({
+  Title = "Movement Controls",
+  SubTitle = "Speed, Gravity and JumpPower", 
+  SaveFolder = "Movement Controls"
+})
+
+Window:AddMinimizeButton({
+    Button = {Image = redzlib:GetIcon("sigma") , BackgroundTransparency = 0 },
+    Corner = { CornerRadius = UDim.new(35, 1) },
+})
+
+local Tab1 = Window:MakeTab({"Controls", "settings"})
+Window:SelectTab(Tab1)
+
+local Section = Tab1:AddSection({"Movement Controls"})
+
+local speedValue = 16
+local gravityValue = 196.2
+local jumpPowerValue = 50
+
+local function applyChanges()
+    local player = game.Players.LocalPlayer
+    if player and player.Character then
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = speedValue
+            humanoid.JumpPower = jumpPowerValue
+        end
+    end
+    
+    workspace.Gravity = gravityValue
+end
+
+local Slider1 = Tab1:AddSlider({
+  Name = "Speed",
+  Min = 16,
+  Max = 200,
+  Increase = 1,
+  Default = 16,
+  Callback = function(Value)
+    speedValue = Value
+    applyChanges()
+  end
+})
+
+local Slider2 = Tab1:AddSlider({
+  Name = "Gravity", 
+  Min = 0,
+  Max = 500,
+  Increase = 1,
+  Default = 196.2,
+  Callback = function(Value)
+    gravityValue = Value
+    applyChanges()
+  end
+})
+
+local Slider3 = Tab1:AddSlider({
+  Name = "JumpPower",
+  Min = 50,
+  Max = 500,
+  Increase = 1,
+  Default = 50,
+  Callback = function(Value)
+    jumpPowerValue = Value
+    applyChanges()
+  end
+})
+
+Tab1:AddButton({"Reset to Default", function()
+    speedValue = 16
+    gravityValue = 196.2
+    jumpPowerValue = 50
+    Slider1:Set(speedValue)
+    Slider2:Set(gravityValue)
+    Slider3:Set(jumpPowerValue)
+    applyChanges()
+    print("Values reset to default")
+end})
+
+Tab1:AddButton({"Apply Settings", function()
+    applyChanges()
+    print("Settings applied!")
+end})
+
+local InfoSection = Tab1:AddSection({"Information"})
+
+Tab1:AddParagraph({"Controls", "Use sliders to adjust:\n- Speed: Movement speed\n- Gravity: Gravity force\n- JumpPower: Jump height"})
+
+applyChanges()
