@@ -22,19 +22,19 @@ UsuariosDoHub[lp.Name] = true
 
 -- Lista de autorizados (admins)
 local autorizados = {
-    ["grabriel_9990"] = "Dono-Admin",
-    ["MANObaiximKaka"] = "Admin",
-    ["jaunzg1fuihacmin"] = "Admin",
-    ["proplay00000"] = "Admin",
-    ["braiozinho2020"] = "Admin",
-    ["Bielzin999bd"] = "Admin",
-    ["Dev_ksjdjdismznd"] = "Admin",
-    ["jondoe4756"] = "Admin",
-    ["Nayane_123456789"] = "Admin",
-    ["luqueta_19773"] = "Admin",
-    ["ResselSkills"] = "Admin",
-    ["ArthurWivson"] = "Admin",
-    ["Posturado1518"] = "Admin"
+    ["HACKELINDO3"] = "Dono-Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin",
+    [""] = "Admin"
 }
 
 -- Carregar biblioteca
@@ -47,6 +47,8 @@ local Window = Library:MakeWindow({
     LoadText = "Loading Demon Hub",
     Flags = "Demon_Broookhaven"
 })
+
+Window:AddMinimizeButton({ Button = { Image = "rbxassetid://131153193945220" } })
 
 -- Abas principais
 local Tab1  = Window:MakeTab({"Credits", "info"})
