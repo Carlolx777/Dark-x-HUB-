@@ -369,7 +369,6 @@ Tab1:AddParagraph({"Executor", executorName})
 Tab1:AddSection({"Versão do Hub 2.2"})
 Tab1:AddParagraph({"Criador", "Carlolx777"})
 
-  Tab1:AddButton({
     Tab1:AddButton({
     Name = "Copiar @ do Insta",
     Callback = function()
