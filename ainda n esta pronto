@@ -1,9 +1,85 @@
---=========================================================
--- Dark x Hub | Brookhaven Nova Era 2.2 | VERSÃO FINAL
---=========================================================
+local StarterGui = game:GetService("StarterGui")
+
+-- Notificação visual no jogo
+StarterGui:SetCore("SendNotification", {
+    Title = "DARK x HUB",
+    Text = "Script carregado com sucesso!",
+    Duration = 5,
+    Icon = "rbxassetid://131153193945220"
+})
+
+print("═══════════════════════════════════════════════════════════════")
+print("        DARK x HUB - Brookhaven RP Script ")
+print("═══════════════════════════════════════════════════════════════")
+print("Developer: Carlolx777")
+print("Version: 2.2 FINAL")
+print("Executor: Todos Compatible")
+print("═══════════════════════════════════════════════════════════════")
+print("Script carregado com sucesso!")
+print("═══════════════════════════════════════════════════════════════")
+
+-- DARK x HUB - VERSÃO V2.2 (UPDATE)
+-- Loading Dark Hub + Movimento + Troll + Teleportes + Visual + Casas + Carro (Bring/Fly)
+
+-- 1. TELA DE CARREGAMENTO
+local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local loadingGui = Instance.new("ScreenGui", playerGui)
+loadingGui.Name = "DarkHubLoading"
+loadingGui.ResetOnSpawn = false
+loadingGui.IgnoreGuiInset = true
+
+local background = Instance.new("Frame", loadingGui)
+background.Size = UDim2.new(1, 0, 1, 0)
+background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+background.BorderSizePixel = 0
+
+local frame = Instance.new("Frame", background)
+frame.Size = UDim2.new(0, 400, 0, 120)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 0
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0.4, 0)
+title.Text = "Dark x Hub"
+title.TextColor3 = Color3.fromRGB(200, 0, 0)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+
+local percentLabel = Instance.new("TextLabel", frame)
+percentLabel.Size = UDim2.new(1, 0, 0.3, 0)
+percentLabel.Position = UDim2.new(0, 0, 0.4, 0)
+percentLabel.Text = "0%"
+percentLabel.TextColor3 = Color3.fromRGB(200, 0, 0)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Font = Enum.Font.Gotham
+percentLabel.TextScaled = true
+
+local progressBar = Instance.new("Frame", frame)
+progressBar.Size = UDim2.new(0, 0, 0.2, 0)
+progressBar.Position = UDim2.new(0, 0, 0.8, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+
+local steps = 100
+for i = 1, steps do
+    percentLabel.Text = i .. "%"
+    progressBar.Size = UDim2.new(i / 100, 0, 0.2, 0)
+    task.wait(0.01)
+end
+loadingGui:Destroy()
+
+
+print("Script iniciado!")
+local Players = game:GetService("Players")
+if Players.LocalPlayer then
+    print("Jogador detectado: " .. Players.LocalPlayer.Name)
+else
+    print("Aguardando carregamento do LocalPlayer...")
+end
 
 -- [1. SERVIÇOS]
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StarterGui = game:GetService("StarterGui")
 local Workspace = game:GetService("Workspace")
@@ -22,27 +98,15 @@ local vu9 = Workspace
 local vu10 = RunService
 local vuCam = Workspace.CurrentCamera
 
-local lp = Players.LocalPlayer
 workspace.FallenPartsDestroyHeight = -math.huge
 
 -- Lista de usuários que abriram o Hub
 local UsuariosDoHub = {}
-UsuariosDoHub[lp.Name] = true
+if lp then UsuariosDoHub[lp.Name] = true end
 
 -- Lista de autorizados (admins)
 local autorizados = {
     ["HACKELINDO3"] = "Dono-Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
-    [""] = "Admin",
     [""] = "Admin"
 }
 
@@ -59,7 +123,7 @@ _G.BH_Strength = 200
 _G.IsTrapping = false
 _G.FlingToggle = false
 
--- [4. VARIÁVEIS E FUNÇÕES SOLICITADAS (BLOCO ANTIS/SUPORTE)]
+-- [4. VARIÁVEIS E FUNÇÕES DE SUPORTE]
 local antiToolSit, antiCarSit, antiVehicleCollision = false, false, false
 local keywords = { "bomb", "soccer", "boat" }
 local carKeyword = "car"
@@ -99,7 +163,6 @@ local function ApplyAntiLag(state)
         end
     end
 end
-
 -- --- FUNÇÕES DE SUPORTE ---
 local function applyCollisionLogic(obj)
     if not obj:IsA("BasePart") then return end
@@ -234,16 +297,25 @@ local function ForcePart(v)
     end
 end
 
--- [5. INICIALIZAÇÃO DA UI]
-local Library = loadstring(game:HttpGet("https://pastefy.app/QrJLAr8A/raw"))()
+
+-- [INICIALIZAÇÃO DA UI - LINHA ~188]
+-- Se o erro persistir, o problema provavelmente está nesta linha abaixo:
+local success, Library = pcall(function()
+    return loadstring(game:HttpGet("https://pastefy.app/QrJLAr8A/raw"))()
+end)
+
+if not success or not Library then
+    warn("ERRO: A biblioteca de interface não pôde ser carregada. O link pode estar offline.")
+    return
+end
+
 local Window = Library:MakeWindow({
-    Title = "Dark x hub | brookhaven_nova_era_2.2",
+    Title = "Dark x hub | brookhaven_v_2.2",
     SubTitle = "by Carlolx777*",
-    LoadText = "Carregando Demon Hub...",
-    Flags = "Demon_Broookhaven"
+    LoadText = "Carregando Dark Hub...",
+    Flags = "Dark_Broookhaven"
 })
 
--- ABAS
 local Tab1  = Window:MakeTab({"Credits", "info"})
 local Tab2  = Window:MakeTab({"Fun", "fun"})
 local Tab3  = Window:MakeTab({"Avatar", "shirt"})
@@ -259,295 +331,8 @@ local TrollTab = Window:MakeTab({"Controls", "settings"})
 local TabAntis = Window:MakeTab({"Antis", "shield"})
 local Tab11 = Window:MakeTab({" Painel de Admin", "shield"})
 local TabSky = Window:MakeTab({"TUBES93", "alert-octagon"})
-local Tab12 = Window:MakeTab({"Teleportes", "map-pin"})
-local TabExpansao = Window:MakeTab({"Expansão", "sparkles"})
+local TabExpansao = Window:MakeTab({"Expansão", ""})
 
--- [6. CONTEÚDO DAS ABAS E CONEXÕES]
--- Donos especiais
-local Donos = {
-    ["HACKELINDO3"] = true,
-    [""] = true,
-    [""] = true,
-    [""] = true
-}
-
--- Estado
-local playerOriginalSpeed = {}
-local jaulas = {}
-local jailConnections = {}
-
---=========================================================
--- 🧠 Tags na cabeça (HUD acima dos players)
---=========================================================
-local function createSpecialTag(player)
-    if not player then return end
-    local function apply()
-        local char = player.Character
-        if not char then return end
-        local head = char:FindFirstChild("Head")
-        if not head then return end
-
-        local old = head:FindFirstChild("SpecialTag")
-        if old then old:Destroy() end
-
-        local gui = Instance.new("BillboardGui")
-        gui.Name = "SpecialTag"
-        gui.Size = UDim2.new(0, 200, 0, 50)
-        gui.StudsOffset = Vector3.new(0, 3, 0)
-        gui.AlwaysOnTop = true
-        gui.Adornee = head
-        gui.Parent = head
-
-        local text = Instance.new("TextLabel")
-        text.Size = UDim2.new(1, 0, 1, 0)
-        text.BackgroundTransparency = 1
-        text.Font = Enum.Font.GothamBold
-        text.TextScaled = true
-        text.TextStrokeTransparency = 0.2
-        text.TextStrokeColor3 = Color3.new(0,0,0)
-        text.TextColor3 = Color3.fromRGB(255,255,255)
-
-        if Donos[player.Name] then
-            text.Text = "Dono"
-            text.TextColor3 = Color3.fromRGB(255, 230, 0)
-        elseif autorizados[player.Name] then
-            text.Text = "Admin"
-            text.TextColor3 = Color3.fromRGB(0, 255, 255)
-        elseif UsuariosDoHub[player.Name] then
-            text.Text = "Hub User"
-            text.TextColor3 = Color3.fromRGB(255, 255, 255)
-        else
-            text.Text = ""
-        end
-
-        text.Parent = gui
-    end
-
-    pcall(apply)
-    player.CharacterAdded:Connect(function()
-        task.wait(0.4)
-        pcall(apply)
-    end)
-end
-
--- Aplica tag a todos
-for _, p in ipairs(Players:GetPlayers()) do
-    createSpecialTag(p)
-end
-Players.PlayerAdded:Connect(createSpecialTag)
-
---=========================================================
--- ⚙️ Sistema de comandos via chat
---=========================================================
-local function EnviarComando(comando, alvo)
-    local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") 
-        or TextChatService.TextChannels:GetChildren()[1]
-    if canal then
-        canal:SendAsync(";" .. comando .. " " .. (alvo or ""))
-    end
-end
-
-local function ProcessarMensagem(msgText, authorName)
-    if not msgText or not authorName then return end
-    if not UsuariosDoHub[authorName] and not Donos[authorName] then return end
-
-    local comandoLower = msgText:lower()
-    local targetLower = lp.Name:lower()
-    local character = lp.Character
-    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-
-    -- Comandos principais
-    if comandoLower:match(";kick%s+" .. targetLower) then
-        lp:Kick("Você foi kickado por admin-Dark Studio")
-    elseif comandoLower:match(";kill%s+" .. targetLower) then
-        if character then character:BreakJoints() end
-    elseif comandoLower:match(";killplus%s+" .. targetLower) then
-        if character then
-            character:BreakJoints()
-            local root = character:FindFirstChild("HumanoidRootPart")
-            if root then
-                for i = 1, 10 do
-                    local part = Instance.new("Part")
-                    part.Size = Vector3.new(10,10,10)
-                    part.Anchored = false
-                    part.CanCollide = false
-                    part.Material = Enum.Material.Neon
-                    part.BrickColor = BrickColor.Random()
-                    part.CFrame = root.CFrame
-                    part.Parent = Workspace
-                    local bv = Instance.new("BodyVelocity")
-                    bv.Velocity = Vector3.new(math.random(-50,50), math.random(20,80), math.random(-50,50))
-                    bv.MaxForce = Vector3.new(1e5,1e5,1e5)
-                    bv.Parent = part
-                    Debris:AddItem(part,3)
-                end
-            end
-        end
-    elseif comandoLower:match(";fling%s+" .. targetLower) then
-        if character and character:FindFirstChild("HumanoidRootPart") then
-            TweenService:Create(character.HumanoidRootPart, TweenInfo.new(1), {CFrame = CFrame.new(0,1000000,0)}):Play()
-        end
-    elseif comandoLower:match(";freeze%s+" .. targetLower) then
-        if humanoid then
-            playerOriginalSpeed[targetLower] = humanoid.WalkSpeed
-            humanoid.WalkSpeed = 0
-        end
-    elseif comandoLower:match(";unfreeze%s+" .. targetLower) then
-        if humanoid then
-            humanoid.WalkSpeed = playerOriginalSpeed[targetLower] or 16
-        end
-    elseif comandoLower:match(";jail%s+" .. targetLower) then
-        if character and character:FindFirstChild("HumanoidRootPart") then
-            local root = character.HumanoidRootPart
-            local pos = root.Position
-            jaulas[targetLower] = {}
-            local color = Color3.fromRGB(255,140,0)
-
-            local function criarPart(cf,s)
-                local p = Instance.new("Part")
-                p.Anchored = true
-                p.Size = s
-                p.CFrame = cf
-                p.Transparency = 0.5
-                p.Color = color
-                p.Parent = Workspace
-                table.insert(jaulas[targetLower], p)
-            end
-
-            criarPart(CFrame.new(pos + Vector3.new(5,0,0)), Vector3.new(1,10,10))
-            criarPart(CFrame.new(pos + Vector3.new(-5,0,0)), Vector3.new(1,10,10))
-            criarPart(CFrame.new(pos + Vector3.new(0,0,5)), Vector3.new(10,10,1))
-            criarPart(CFrame.new(pos + Vector3.new(0,0,-5)), Vector3.new(10,10,1))
-            criarPart(CFrame.new(pos + Vector3.new(0,5,0)), Vector3.new(10,1,10))
-            criarPart(CFrame.new(pos + Vector3.new(0,-5,0)), Vector3.new(10,1,10))
-
-            jailConnections[targetLower] = RunService.Heartbeat:Connect(function()
-                if (root.Position - pos).Magnitude > 5 then
-                    root.CFrame = CFrame.new(pos)
-                end
-            end)
-        end
-    elseif comandoLower:match(";unjail%s+" .. targetLower) then
-        if jaulas[targetLower] then
-            for _, v in pairs(jaulas[targetLower]) do
-                if v then pcall(function() v:Destroy() end) end
-            end
-            jaulas[targetLower] = nil
-        end
-        if jailConnections[targetLower] then
-            jailConnections[targetLower]:Disconnect()
-            jailConnections[targetLower] = nil
-        end
-    elseif comandoLower:match("^;verifique") then
-        local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") 
-            or TextChatService.TextChannels:GetChildren()[1]
-        if canal then
-            canal:SendAsync("Dark x ###")
-        end
-    end
-end
-
--- Listener de chat
-local function ConectarCanal(canal)
-    if canal:IsA("TextChannel") then
-        canal.MessageReceived:Connect(function(msg)
-            local text = msg.Text
-            local source = msg.TextSource and msg.TextSource.Name
-            if text and source then
-                ProcessarMensagem(text, source)
-            end
-        end)
-    end
-end
-
-for _, ch in ipairs(TextChatService.TextChannels:GetChildren()) do
-    ConectarCanal(ch)
-end
-TextChatService.TextChannels.ChildAdded:Connect(ConectarCanal)
-
---=========================================================
--- 🛡️ Painel Admin
---=========================================================
-Tab11:AddButton({
-    Name = "Abrir Painel Admin",
-    Description = "Somente autorizados",
-    Callback = function()
-        local nome = lp.Name
-        if not autorizados[nome] then
-            StarterGui:SetCore("SendNotification", {
-                Title = "Acesso negado",
-                Text = "Você não tem permissão para abrir o painel admin",
-                Duration = 3
-            })
-            return
-        end
-
-        StarterGui:SetCore("SendNotification", {
-            Title = "Painel Admin",
-            Text = "Carregando painel administrativo...",
-            Duration = 3
-        })
-
-        local ok, WindUILib = pcall(function()
-            return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
-        end)
-
-        if ok and WindUILib then
-            local AdminWindow = WindUILib:CreateWindow({
-                Title = "Dark x Hub | Administrativo Version |3.3v",
-                Icon = "star",
-                Author = "by Carlolx777",
-                Folder = "Dark x Hub Admins",
-                Size = UDim2.fromOffset(580,460),
-                Transparent = true,
-                Resizable = false,
-                SideBarWidth = 200,
-                BackgroundImageTransparency = 0.42,
-                HideSearchBar = true,
-                ScrollBarEnabled = true,
-            })
-
-            local TabComandos = AdminWindow:Tab({ Title = "Scripts", Icon = "terminal" })
-            local Section = TabComandos:Section({ Title = "Admin Controls", Icon = "user-cog", Opened = true })
-
-            local TargetName
-            local Dropdown = Section:Dropdown({
-                Title = "Selecionar Jogador (Hub Users)",
-                Values = (function()
-                    local t = {}
-                    for p,_ in pairs(UsuariosDoHub) do table.insert(t, p) end
-                    return t
-                end)(),
-                Value = "",
-                Callback = function(opt) TargetName = opt end
-            })
-
-            local comandos = { "kick","kill","killplus","fling","freeze","unfreeze","jail","unjail","verifique" }
-            for _, cmd in ipairs(comandos) do
-                Section:Button({
-                    Title = cmd,
-                    Desc = "Executa ;"..cmd.." no jogador selecionado",
-                    Callback = function()
-                        if cmd == "verifique" then
-                            EnviarComando("verifique", "")
-                        else
-                            if TargetName and TargetName ~= "" then
-                                EnviarComando(cmd, TargetName)
-                            end
-                        end
-                    end
-                })
-            end
-        end
-    end
-})
-
--- Notificação final
-StarterGui:SetCore("SendNotification", {
-    Title = "Dark x Hub",
-    Text = "Carregado com sucesso!",
-    Duration = 3
-})
 -- TAB 1: CREDITS
 Tab1:AddDiscordInvite({
     Name = "Dark x hub",
@@ -576,10 +361,36 @@ end
 
 local executorName = detectExecutor()
 Tab1:AddParagraph({"Executor", executorName})
-Tab1:AddSection({"Versão do Hub 3.7"})
+Tab1:AddSection({"Versão do Hub 2.2"})
 Tab1:AddParagraph({"Criador", "Carlolx777"})
-Tab1:AddSection({"Meus Manos"})
-Tab1:AddParagraph({"Lista", "spy.9991\nmarlon0553\nraianbde02"})
+
+  Tab1:AddButton({
+    Tab1:AddButton({
+    Name = "Copiar @ do Insta",
+    Callback = function()
+        setclipboard("@Carlolx7") -- Copia o user
+        
+        -- Opcional: Notificação para avisar que copiou
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Área de Transferência",
+            Text = "Insta @carlolx7 copiado!",
+            Duration = 3
+        })
+    end
+})
+
+Tab1:AddButton({
+    Name = "Copiar Link do Insta",
+    Callback = function()
+        setclipboard("https://www.instagram.com/carlolx7/") -- Copia o link completo
+        
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Área de Transferência",
+            Text = "Link do Insta copiado!",
+            Duration = 3
+        })
+    end
+})
 
 -- TAB 2: FUN
 local Section = Tab2:AddSection({"Player Character"})
@@ -2933,7 +2744,6 @@ TabTroll:AddButton({Name = "Go To", Callback = function()
     if T and T.Character then vu7.Character.HumanoidRootPart.CFrame = T.Character.HumanoidRootPart.CFrame * CFrame.new(0,0,0) end
 end})
 
-
 local sectionFlingBoat = TabTroll:AddSection({Name = "Fling Boat"})
 TabTroll:AddButton({
     Name = "Fling - Boat",
@@ -3079,6 +2889,7 @@ TabTroll:AddToggle({
         end
     end
 })
+
 TabTroll:AddSection({Name = "Clicks"})
 TabTroll:AddButton({
     Name = "Click Fling Admin v2 (Tool)",
@@ -5144,6 +4955,291 @@ TabAntis:AddSection({"Anti Fling"})
     TabAntis:AddSection({"Anti Lag"})
 TabAntis:AddToggle({ Name = "Anti-Lag", Callback = function(s) _G.AntiLag = s ApplyAntiLag(s) end })
 
+-- Donos especiais
+local Donos = {
+    ["HACKELINDO3"] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true
+}
+
+-- Estado
+local playerOriginalSpeed = {}
+local jaulas = {}
+local jailConnections = {}
+
+--=========================================================
+-- 🧠 Tags na cabeça (HUD acima dos players)
+--=========================================================
+local function createSpecialTag(player)
+    if not player then return end
+    local function apply()
+        local char = player.Character
+        if not char then return end
+        local head = char:FindFirstChild("Head")
+        if not head then return end
+
+        local old = head:FindFirstChild("SpecialTag")
+        if old then old:Destroy() end
+
+        local gui = Instance.new("BillboardGui")
+        gui.Name = "SpecialTag"
+        gui.Size = UDim2.new(0, 200, 0, 50)
+        gui.StudsOffset = Vector3.new(0, 3, 0)
+        gui.AlwaysOnTop = true
+        gui.Adornee = head
+        gui.Parent = head
+
+        local text = Instance.new("TextLabel")
+        text.Size = UDim2.new(1, 0, 1, 0)
+        text.BackgroundTransparency = 1
+        text.Font = Enum.Font.GothamBold
+        text.TextScaled = true
+        text.TextStrokeTransparency = 0.2
+        text.TextStrokeColor3 = Color3.new(0,0,0)
+        text.TextColor3 = Color3.fromRGB(255,255,255)
+
+        if Donos[player.Name] then
+            text.Text = "Dono"
+            text.TextColor3 = Color3.fromRGB(255, 230, 0)
+        elseif autorizados[player.Name] then
+            text.Text = "Admin"
+            text.TextColor3 = Color3.fromRGB(0, 255, 255)
+        elseif UsuariosDoHub[player.Name] then
+            text.Text = "Hub User"
+            text.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            text.Text = ""
+        end
+
+        text.Parent = gui
+    end
+
+    pcall(apply)
+    player.CharacterAdded:Connect(function()
+        task.wait(0.4)
+        pcall(apply)
+    end)
+end
+
+-- Aplica tag a todos
+for _, p in ipairs(Players:GetPlayers()) do
+    createSpecialTag(p)
+end
+Players.PlayerAdded:Connect(createSpecialTag)
+
+--=========================================================
+-- ⚙️ Sistema de comandos via chat
+--=========================================================
+local function EnviarComando(comando, alvo)
+    local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") 
+        or TextChatService.TextChannels:GetChildren()[1]
+    if canal then
+        canal:SendAsync(";" .. comando .. " " .. (alvo or ""))
+    end
+end
+
+local function ProcessarMensagem(msgText, authorName)
+    if not msgText or not authorName then return end
+    if not UsuariosDoHub[authorName] and not Donos[authorName] then return end
+
+    local comandoLower = msgText:lower()
+    local targetLower = lp.Name:lower()
+    local character = lp.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+    -- Comandos principais
+    if comandoLower:match(";kick%s+" .. targetLower) then
+        lp:Kick("Você foi kickado por admin-Dark Studio")
+    elseif comandoLower:match(";kill%s+" .. targetLower) then
+        if character then character:BreakJoints() end
+    elseif comandoLower:match(";killplus%s+" .. targetLower) then
+        if character then
+            character:BreakJoints()
+            local root = character:FindFirstChild("HumanoidRootPart")
+            if root then
+                for i = 1, 10 do
+                    local part = Instance.new("Part")
+                    part.Size = Vector3.new(10,10,10)
+                    part.Anchored = false
+                    part.CanCollide = false
+                    part.Material = Enum.Material.Neon
+                    part.BrickColor = BrickColor.Random()
+                    part.CFrame = root.CFrame
+                    part.Parent = Workspace
+                    local bv = Instance.new("BodyVelocity")
+                    bv.Velocity = Vector3.new(math.random(-50,50), math.random(20,80), math.random(-50,50))
+                    bv.MaxForce = Vector3.new(1e5,1e5,1e5)
+                    bv.Parent = part
+                    Debris:AddItem(part,3)
+                end
+            end
+        end
+    elseif comandoLower:match(";fling%s+" .. targetLower) then
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            TweenService:Create(character.HumanoidRootPart, TweenInfo.new(1), {CFrame = CFrame.new(0,1000000,0)}):Play()
+        end
+    elseif comandoLower:match(";freeze%s+" .. targetLower) then
+        if humanoid then
+            playerOriginalSpeed[targetLower] = humanoid.WalkSpeed
+            humanoid.WalkSpeed = 0
+        end
+    elseif comandoLower:match(";unfreeze%s+" .. targetLower) then
+        if humanoid then
+            humanoid.WalkSpeed = playerOriginalSpeed[targetLower] or 16
+        end
+    elseif comandoLower:match(";jail%s+" .. targetLower) then
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local root = character.HumanoidRootPart
+            local pos = root.Position
+            jaulas[targetLower] = {}
+            local color = Color3.fromRGB(255,140,0)
+
+            local function criarPart(cf,s)
+                local p = Instance.new("Part")
+                p.Anchored = true
+                p.Size = s
+                p.CFrame = cf
+                p.Transparency = 0.5
+                p.Color = color
+                p.Parent = Workspace
+                table.insert(jaulas[targetLower], p)
+            end
+
+            criarPart(CFrame.new(pos + Vector3.new(5,0,0)), Vector3.new(1,10,10))
+            criarPart(CFrame.new(pos + Vector3.new(-5,0,0)), Vector3.new(1,10,10))
+            criarPart(CFrame.new(pos + Vector3.new(0,0,5)), Vector3.new(10,10,1))
+            criarPart(CFrame.new(pos + Vector3.new(0,0,-5)), Vector3.new(10,10,1))
+            criarPart(CFrame.new(pos + Vector3.new(0,5,0)), Vector3.new(10,1,10))
+            criarPart(CFrame.new(pos + Vector3.new(0,-5,0)), Vector3.new(10,1,10))
+
+            jailConnections[targetLower] = RunService.Heartbeat:Connect(function()
+                if (root.Position - pos).Magnitude > 5 then
+                    root.CFrame = CFrame.new(pos)
+                end
+            end)
+        end
+    elseif comandoLower:match(";unjail%s+" .. targetLower) then
+        if jaulas[targetLower] then
+            for _, v in pairs(jaulas[targetLower]) do
+                if v then pcall(function() v:Destroy() end) end
+            end
+            jaulas[targetLower] = nil
+        end
+        if jailConnections[targetLower] then
+            jailConnections[targetLower]:Disconnect()
+            jailConnections[targetLower] = nil
+        end
+    elseif comandoLower:match("^;verifique") then
+        local canal = TextChatService.TextChannels:FindFirstChild("RBXGeneral") 
+            or TextChatService.TextChannels:GetChildren()[1]
+        if canal then
+            canal:SendAsync("Dark x ###")
+        end
+    end
+end
+
+-- Listener de chat
+local function ConectarCanal(canal)
+    if canal:IsA("TextChannel") then
+        canal.MessageReceived:Connect(function(msg)
+            local text = msg.Text
+            local source = msg.TextSource and msg.TextSource.Name
+            if text and source then
+                ProcessarMensagem(text, source)
+            end
+        end)
+    end
+end
+
+for _, ch in ipairs(TextChatService.TextChannels:GetChildren()) do
+    ConectarCanal(ch)
+end
+TextChatService.TextChannels.ChildAdded:Connect(ConectarCanal)
+
+--=========================================================
+-- 🛡️ Painel Admin
+--=========================================================
+Tab11:AddButton({
+    Name = "Abrir Painel Admin",
+    Description = "Somente autorizados",
+    Callback = function()
+        local nome = lp.Name
+        if not autorizados[nome] then
+            StarterGui:SetCore("SendNotification", {
+                Title = "Acesso negado",
+                Text = "Você não tem permissão para abrir o painel admin",
+                Duration = 3
+            })
+            return
+        end
+
+        StarterGui:SetCore("SendNotification", {
+            Title = "Painel Admin",
+            Text = "Carregando painel administrativo...",
+            Duration = 3
+        })
+
+        local ok, WindUILib = pcall(function()
+            return loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+        end)
+
+        if ok and WindUILib then
+            local AdminWindow = WindUILib:CreateWindow({
+                Title = "Dark x Hub | Administrativo Version |3.3v",
+                Icon = "star",
+                Author = "by Carlolx777",
+                Folder = "Dark x Hub Admins",
+                Size = UDim2.fromOffset(580,460),
+                Transparent = true,
+                Resizable = false,
+                SideBarWidth = 200,
+                BackgroundImageTransparency = 0.42,
+                HideSearchBar = true,
+                ScrollBarEnabled = true,
+            })
+
+            local TabComandos = AdminWindow:Tab({ Title = "Scripts", Icon = "terminal" })
+            local Section = TabComandos:Section({ Title = "Admin Controls", Icon = "user-cog", Opened = true })
+
+            local TargetName
+            local Dropdown = Section:Dropdown({
+                Title = "Selecionar Jogador (Hub Users)",
+                Values = (function()
+                    local t = {}
+                    for p,_ in pairs(UsuariosDoHub) do table.insert(t, p) end
+                    return t
+                end)(),
+                Value = "",
+                Callback = function(opt) TargetName = opt end
+            })
+
+            local comandos = { "kick","kill","killplus","fling","freeze","unfreeze","jail","unjail","verifique" }
+            for _, cmd in ipairs(comandos) do
+                Section:Button({
+                    Title = cmd,
+                    Desc = "Executa ;"..cmd.." no jogador selecionado",
+                    Callback = function()
+                        if cmd == "verifique" then
+                            EnviarComando("verifique", "")
+                        else
+                            if TargetName and TargetName ~= "" then
+                                EnviarComando(cmd, TargetName)
+                            end
+                        end
+                    end
+                })
+            end
+        end
+    end
+})
+
+-- Notificação final
+StarterGui:SetCore("SendNotification", {
+    Title = "Dark x Hub",
+    Text = "Carregado com sucesso!",
+    Duration = 3
+})
 
 TabExpansao:AddButton({
     Name = "Expansão de Domínio 🔮",
