@@ -309,11 +309,11 @@ Tab1:AddParagraph({"Executor", executorName})
 Tab1:AddSection({"Versão do Hub 2.2"})
 Tab1:AddParagraph({"Criador", "Carlolx777"})
 
-  Tab1:AddButton({
+  
     Tab1:AddButton({
     Name = "Copiar @ do Insta",
     Callback = function()
-        setclipboard("@Carlolx7") -- Copia o user
+        setclipboard("@carlolx7") -- Copia o user
         
         -- Opcional: Notificação para avisar que copiou
         game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -336,6 +336,9 @@ Tab1:AddButton({
         })
     end
 })
+--------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab 2: Fun === --
+-----------------------------------------------------------------------------------------------------------------------------------
 -- TAB 2: FUN
 local Section = Tab2:AddSection({"Player Character"})
 
@@ -891,6 +894,10 @@ Toggle1:Callback(function(value)
         billboardGuis = {}
     end
 end)
+----------------------------------------------------------------------------------------------------------------------------
+-- Tab3: Avatar Editor
+----------------------------------------------------------------------------------------------------------------------------
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -1019,30 +1026,32 @@ Tab3:AddButton({
 --------------------------------------------------
 local Section2 = Tab3:AddSection({"Roupas 3D"})
 
+local AvatarManager = {}
+AvatarManager.ReplicatedStorage = ReplicatedStorage
 AvatarManager.Avatares = {
-    { Nome = "Gato de Manga", ID = 10265120934},
+    { Nome = "Gato de Manga", ID = 124948425515124 },
     { Nome = "Tung Saur", ID = 117098257036480 },
     { Nome = "Tralaleiro", ID = 99459753608381 },
     { Nome = "Monstro S.A", ID = 123609977175226 },
     { Nome = "Trenzinho", ID = 80468697076178 },
     { Nome = "Dino", ID = 11941741105 },
-    { Nome = "Pou idoso", ID = 15742966010 },
-    { Nome = "Coco/boxt@", ID = 77013984520332 },
-    { Nome = "Coelho", ID = 71797333686800 },
-    { Nome = "HipopÃ³tamo", ID = 73215892129281 },
+    { Nome = "Pou idoso", ID = 15742966010  },
+    { Nome = "Coco/boxt@", ID = 77013984520332  },
+    { Nome = "Coelho", ID = 71797333686800  },
+    { Nome = "Hipopótamo", ID = 73215892129281 },
     { Nome = "Ratatui", ID = 108557570415453 },
     { Nome = "Galinha", ID = 71251793812515 },
     { Nome = "Pepa pig", ID = 92979204778377 },
     { Nome = "pinguin", ID = 94944293759578 },
     { Nome = "Sid", ID = 87442757321244 },
     { Nome = "puga grande", ID = 111436158728716 },
-    { Nome = "SHREK AMALDIÃ‡OADO", ID = 120960401202173 },
+    { Nome = "SHREK AMALDIÇOADO", ID = 120960401202173 },
     { Nome = "mosquito grande", ID = 108052868536435 },
     { Nome = "Noob Invertido", ID = 106596990206151 },
     { Nome = "Pato(a)", ID = 135132836238349 },
     { Nome = "Cachorro Chihuahua", ID = 18656467256 },
     { Nome = "Gato sla", ID = 18994959003 },
-    { Nome = "Gato fei", ID = 77506186615650 },
+    { Nome = "Gato fei ", ID = 77506186615650 },
     { Nome = "Inpostor", ID = 18234669337 },
     { Nome = "Simon amarelo", ID = 75183593514657 },
     { Nome = "Simon azul", ID = 76155710249925 }
@@ -1056,26 +1065,32 @@ function AvatarManager:GetAvatarNames()
     return nomes
 end
 
+function AvatarManager:MostrarNotificacao(mensagem)
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Aviso",
+            Text = mensagem,
+            Duration = 5
+        })
+    end)
+end
+
 function AvatarManager:EquiparAvatar(avatarName)
     for _, avatar in ipairs(self.Avatares) do
         if avatar.Nome == avatarName then
             local args = { avatar.ID }
-            local success, result = pcall(function()
-                return self.ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Wear"):InvokeServer(unpack(args))
+            pcall(function()
+                Remotes.Wear:InvokeServer(unpack(args))
             end)
-            if success then
-                self:MostrarNotificacao("Avatar " .. avatarName .. " equipado com sucesso!")
-            else
-                self:MostrarNotificacao("Falha ao equipar o avatar " .. avatarName .. "!")
-            end
+            self:MostrarNotificacao("Avatar " .. avatarName .. " equipado com sucesso!")
             return
         end
     end
-    self:MostrarNotificacao("Avatar " .. avatarName .. " nÃ£o encontrado!")
+    self:MostrarNotificacao("Avatar " .. avatarName .. " não encontrado!")
 end
 
 local AvatarDropdown = Tab3:AddDropdown({
-    Name = "AssesÃ³rios 3D",
+    Name = "Acessórios 3D",
     Description = "Selecione para equipar",
     Default = nil,
     Options = AvatarManager:GetAvatarNames(),
@@ -1095,57 +1110,57 @@ Tab3:AddButton({
         AvatarManager:EquiparAvatar(_G.SelectedAvatar)
     end
 })
-local Section = Tab3:AddSection({"Avatar Editor"})
+
+--------------------------------------------------
+-- Section: Avatar Editor / Partes do corpo
+--------------------------------------------------
+local Section3 = Tab3:AddSection({"Avatar Editor"})
 
 Tab3:AddParagraph({
     Title = "Aviso: vai resetar seu avatar",
     Content = ""
 })
 
-Tab3:AddButton({
-    Name = "Mini REPO",
-    Callback = function()
-        local args = {{
-            117101023704825,125767940563838,137301494386930,87357384184710,133391239416999,111818794467824
-        }}
-        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-    end
-})
+-- Função auxiliar para equipar partes do corpo
+local function EquipBody(ids)
+    pcall(function()
+        Remotes.ChangeCharacterBody:InvokeServer({ids})
+    end)
+    print("Partes do corpo equipadas!")
+end
 
-Tab3:AddButton({
-    Name = "Mini GaranhÃ£o",
-    Callback = function()
-        local args = {{
-            124355047456535,120507500641962,82273782655463,113625313757230,109182039511426,0
-        }}
-        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-    end
-})
+-- Botões de partes do corpo
+Tab3:AddButton({Name = "Mini REPO", Callback = function()
+    EquipBody({117101023704825,125767940563838,137301494386930,87357384184710,133391239416999,111818794467824})
+end})
 
-Tab3:AddButton({
-    Name = "Stick",
-    Callback = function()
-        local args = {{
-            14731384498,14731377938,14731377894,14731377875,14731377941,14731382899
-        }}
-        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-    end
-})
+Tab3:AddButton({Name = "Mini Garanhão", Callback = function()
+    EquipBody({124355047456535,120507500641962,82273782655463,113625313757230,109182039511426,0})
+end})
 
-Tab3:AddButton({
-    Name = "Chunky-Bug",
-    Callback = function()
-        local args = {{
-            15527827600,15527827578,15527831669,15527836067,15527827184,15527827599
-        }}
-        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ChangeCharacterBody"):InvokeServer(unpack(args))
-    end
-})
+Tab3:AddButton({Name = "Stick", Callback = function()
+    EquipBody({14731384498,14731377938,14731377894,14731377875,14731377941,14731382899})
+end})
+
+Tab3:AddButton({Name = "Chunky-Bug", Callback = function()
+    EquipBody({15527827600,15527827578,15527831669,15527836067,15527827184,15527827599})
+end})
+
+Tab3:AddButton({Name = "Cursed-Spider", Callback = function()
+    EquipBody({134555168634906,100269043793774,125607053187319,122504853343598,95907982259204,91289185840375})
+end})
+
+Tab3:AddButton({Name = "Possessed-Horror", Callback = function()
+    EquipBody({122800511983371,132465361516275,125155800236527,83070163355072,102906187256945,78311422507297})
+end})
 
 Tab3:AddParagraph({
     Title = "Vai ter mais coisas aqui na próxima atualização",
     Content = ""
-})
+})------------------------------------------------------------------------------------------------------------------------------
+                                          -- === Tab4: House === --
+---------------------------------------------------------------------------------------------------------------------------------
+
 Tab4:AddParagraph({
     Title = "Funções para você usar em você",
     Content = ""
@@ -1212,7 +1227,9 @@ Tab4:AddParagraph({
     Title = "to sem ideias para colocar aqui._.",
     Content = ""
 })
-
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab :TROLLS === --
+---------------------------------------------------------------------------------------------------------------------------------
 -- [ABA TROLL ]
 TabTroll:AddSection({"Seleção de Alvo"})
 -- Dropdown da Lista de Jogadores
@@ -1887,6 +1904,11 @@ TabTroll:AddButton({Name = "Jail Couch v1", Callback = function()
         end
     end)
 end})
+
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab 5:Car  === --
+---------------------------------------------------------------------------------------------------------------------------------
+
 local Section = Tab5:AddSection({"all car functions"})
 
 -- Variáveis
@@ -2797,6 +2819,10 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab 6: RGB === --
+---------------------------------------------------------------------------------------------------------------------------------
+
 -- Seção principal
 local Section = Tab6:AddSection({""})
 
@@ -3006,6 +3032,11 @@ ToggleRosquinha:Callback(function(Value)
         end
     end)
 end)
+
+--=========================================================
+-- === Tab 7: Music All ===
+--=========================================================
+
 local loopAtivo = false  
 local InputID = ""  
 
@@ -3343,7 +3374,9 @@ Tab8:AddButton({
         tocarMusica("")
     end
 })
-
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab : Lag === --
+---------------------------------------------------------------------------------------------------------------------------------
 TabLag:AddSection({ Name = "Shutdown Personalizado" })
 
 local function ShutdownLogic(loops)
@@ -4245,7 +4278,9 @@ Toggle:Callback(function(state)
     end
 end)
 TabLag:AddParagraph({ "Informação", "O lag começa após cerca de 35 segundos." })
-
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab : TP === --
+---------------------------------------------------------------------------------------------------------------------------------
 local teleportButtons = {
     {Nome = "Agência", Ponto = CFrame.new(179, 4, -464)},
     {Nome = "Oficina Oculta", Ponto = CFrame.new(0, 4, -495)},
@@ -4336,6 +4371,9 @@ TabTP:AddButton({
         game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, vu7)
     end
 })
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab Controles:  === --
+---------------------------------------------------------------------------------------------------------------------------------
 local Section = TrollTab:AddSection({"Funções"})
 TrollTab:AddSection({ "Puxar Parts" })
 TrollTab:AddButton({
@@ -4833,6 +4871,9 @@ RunService.Heartbeat:Connect(function()
         for _, p in pairs(Players:GetPlayers()) do updateESP(p) end
     end
 end)
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab ANTIS: === --
+---------------------------------------------------------------------------------------------------------------------------------
 
 TabAntis:AddSection({"Anti Sit"})
 
@@ -4914,6 +4955,9 @@ TabAntis:AddSection({"Anti Fling"})
     TabAntis:AddSection({"Anti Lag"})
 TabAntis:AddToggle({ Name = "Anti-Lag", Callback = function(s) _G.AntiLag = s ApplyAntiLag(s) end })
 
+---------------------------------------------------------------------------------------------------------------------------
+                                                   -- === Tab 11: PAINEL ADMIN === --
+---------------------------------------------------------------------------------------------------------------------------------
 -- Donos especiais
 local Donos = {
     ["HACKELINDO3"] = true,
@@ -5191,13 +5235,6 @@ Tab11:AddButton({
             end
         end
     end
-})
-
--- Notificação final
-StarterGui:SetCore("SendNotification", {
-    Title = "Dark x Hub",
-    Text = "Carregado com sucesso!",
-    Duration = 3
 })
 
 TabExpansao:AddButton({
