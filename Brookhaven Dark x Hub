@@ -7611,12 +7611,6 @@ Tab11:AddButton({
     end
 })
 
--- Notificação final
-StarterGui:SetCore("SendNotification", {
-    Title = "Dark x Hub",
-    Text = "Carregado com sucesso!",
-    Duration = 3
-})
 
 TabExpansao:AddButton({
     Name = "Expansão de Domínio 🔮",
